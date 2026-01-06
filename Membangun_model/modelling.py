@@ -38,8 +38,7 @@ y_test = df_test['y']
 print(f"Train shape: {X_train.shape}")
 print(f"Test shape: {X_test.shape}")
 
-# === 3. Train & Log ===
-print("Starting training...")
+
 # === 3. Train & Log ===
 print("Starting training...")
 mlflow.autolog()
