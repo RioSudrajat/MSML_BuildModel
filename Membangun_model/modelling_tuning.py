@@ -5,7 +5,7 @@ import mlflow.sklearn
 import dagshub
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import make_scorer, f1_score
+from sklearn.metrics import make_scorer, f1_score, accuracy_score, precision_score, recall_score, roc_auc_score
 import os
 
 # === 1. Setup DagsHub & MLflow ===
@@ -19,10 +19,21 @@ if os.path.exists('train.csv'):
     train_path = 'train.csv'
 else:
     train_path = '../Membangun_model/train.csv'
+    test_path = '../Membangun_model/test.csv' # Fallback for test
+
+# Ensure test path is handled similar to modelling.py logic if it was just 'test.csv'
+if not os.path.exists(train_path) and os.path.exists('train.csv'):
+    train_path = 'train.csv'
+    test_path = 'test.csv'
+
+df_train = pd.read_csv(train_path)
+df_test = pd.read_csv(test_path) # Load Test Data
 
 df_train = pd.read_csv(train_path)
 X_train = df_train.drop('y', axis=1)
 y_train = df_train['y']
+X_test = df_test.drop('y', axis=1) # Test features
+y_test = df_test['y'] # Test target
 
 # === 3. Hyperparameter Tuning ===
 print("Starting GridSearchCV...")
@@ -57,4 +68,30 @@ with mlflow.start_run(run_name="GridSearch_RF"):
     # Log Best Model
     mlflow.sklearn.log_model(grid_search.best_estimator_, "best_model_tuned")
     
-    print("Tuning complete. Best model logged to DagsHub.")
+    # Evaluate on Test Set
+    print("Evaluating best model on test set...")
+    best_model = grid_search.best_estimator_
+    y_pred = best_model.predict(X_test)
+    y_pred_proba = best_model.predict_proba(X_test)[:, 1]
+
+    # Calculate Metrics Manually
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred)
+    rec = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
+
+    print(f"Test Accuracy: {acc:.4f}")
+    print(f"Test Precision: {prec:.4f}")
+    print(f"Test Recall: {rec:.4f}")
+    print(f"Test F1 Score: {f1:.4f}")
+    print(f"Test ROC AUC: {roc_auc:.4f}")
+
+    # Log Metrics Manually
+    mlflow.log_metric("test_accuracy", acc)
+    mlflow.log_metric("test_precision", prec)
+    mlflow.log_metric("test_recall", rec)
+    mlflow.log_metric("test_f1_score", f1)
+    mlflow.log_metric("test_roc_auc", roc_auc)
+    
+    print("Tuning complete. Best model and metrics logged to DagsHub.")

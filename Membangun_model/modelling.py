@@ -40,20 +40,20 @@ print(f"Test shape: {X_test.shape}")
 
 # === 3. Train & Log ===
 print("Starting training...")
+# === 3. Train & Log ===
+print("Starting training...")
+mlflow.autolog()
+
 with mlflow.start_run(run_name="RandomForest_Baseline"):
     # Define Hyperparameters
     n_estimators = 100
     max_depth = 10
     random_state = 42
     
-    # Log Parameters
-    mlflow.log_param("n_estimators", n_estimators)
-    mlflow.log_param("max_depth", max_depth)
-    mlflow.log_param("model_type", "RandomForestClassifier")
-    
     # Train Model
     clf = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=random_state)
     clf.fit(X_train, y_train)
+
     
     # Predict (Class and Proba)
     y_pred = clf.predict(X_test)
@@ -73,14 +73,14 @@ with mlflow.start_run(run_name="RandomForest_Baseline"):
     print(f"ROC AUC: {roc_auc:.4f}") 
     
     # Log Metrics
-    mlflow.log_metric("accuracy", acc)
-    mlflow.log_metric("precision", prec)
-    mlflow.log_metric("recall", rec)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("roc_auc", roc_auc) # Log ROC AUC
+    # mlflow.log_metric("accuracy", acc)
+    # mlflow.log_metric("precision", prec)
+    # mlflow.log_metric("recall", rec)
+    # mlflow.log_metric("f1_score", f1)
+    # mlflow.log_metric("roc_auc", roc_auc) # Log ROC AUC
     
     # Log Model
-    mlflow.sklearn.log_model(clf, "model")
+    # mlflow.sklearn.log_model(clf, "model")
     
     # === 4. Create & Log Artifacts ===
     # A. Confusion Matrix
