@@ -71,13 +71,6 @@ with mlflow.start_run(run_name="RandomForest_Baseline"):
     print(f"F1 Score: {f1:.4f}")
     print(f"ROC AUC: {roc_auc:.4f}") 
     
-    # Log Metrics
-    mlflow.log_metric("accuracy", acc)
-    mlflow.log_metric("precision", prec)
-    mlflow.log_metric("recall", rec)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("roc_auc", roc_auc)
-    
     # Log Model
     # mlflow.sklearn.log_model(clf, "model")
     
